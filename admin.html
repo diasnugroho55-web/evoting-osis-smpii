@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - E-Voting OSIS SMP Institut Indonesia</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen p-6 font-sans">
+
+  <div class="max-w-6xl mx-auto space-y-6">
+    <!-- HEADER -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-wrap justify-between items-center gap-4 no-print">
+      <div class="flex items-center gap-3">
+        <img 
+          src="logo.png" 
+          alt="Logo SMP Institut Indonesia" 
+          onerror="this.style.display='none'" 
+          class="w-12 h-12 object-contain"
+        >
+        <div>
+          <h1 class="text-xl md:text-2xl font-bold text-slate-800">Dashboard Admin E-Voting OSIS</h1>
+          <p class="text-slate-500 text-sm">SMP Institut Indonesia — Pemantauan Suara & Manajemen Token</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button id="btn-toggle-hasil" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl font-semibold text-sm cursor-pointer">
+          👁️ Sembunyikan Grafik Suara
+        </button>
+        <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl font-semibold text-sm cursor-pointer">
+          🖨️ Cetak Kupon Token
+        </button>
+      </div>
+    </div>
+
+    <!-- STATISTIK PARTISIPASI -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
+      <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-blue-600">
+        <p class="text-sm text-slate-500">Total Token Dibuat</p>
+        <p id="stat-total" class="text-3xl font-bold text-slate-800 mt-1">0</p>
+      </div>
+      <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-green-600">
+        <p class="text-sm text-slate-500">Sudah Memilih (Suara Masuk)</p>
+        <p id="stat-used" class="text-3xl font-bold text-green-600 mt-1">0</p>
+      </div>
+      <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-amber-500">
+        <p class="text-sm text-slate-500">Belum Memilih (Sisa Token)</p>
+        <p id="stat-unused" class="text-3xl font-bold text-amber-600 mt-1">0</p>
+      </div>
+    </div>
+
+    <!-- GRAFIK PEROLEHAN SUARA & PERSENTASE -->
+    <div id="panel-hasil" class="bg-white p-6 rounded-2xl shadow-sm no-print">
+      <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+        <h2 class="text-lg font-bold text-slate-800">Perolehan Suara Sementara (Real-Time)</h2>
+        <button id="btn-hapus-suara" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-semibold text-xs cursor-pointer">
+          🗑️ Hapus Semua Suara Masuk
+        </button>
+      </div>
+      <div class="space-y-4" id="hasil-container"></div>
+    </div>
+
+    <!-- GENERATOR & HAPUS TOKEN -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm no-print">
+      <div class="flex flex-wrap justify-between items-start gap-3 mb-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">Manajemen Kode Token Pemilih</h2>
+          <p class="text-sm text-slate-500">Buat kode acak kriptografis 7 digit angka sekali pakai atau hapus seluruh token.</p>
+        </div>
+        <button id="btn-hapus-token" class="bg-red-100 hover:bg-red-200 text-red-700 border border-red-300 px-4 py-2 rounded-xl font-semibold text-xs cursor-pointer">
+          🗑️ Hapus Semua Token
+        </button>
+      </div>
+      <div class="flex flex-wrap gap-3 items-center">
+        <input type="number" id="jumlah-token" value="50" min="1" max="500" class="border border-slate-300 rounded-xl px-4 py-2 w-36 font-semibold">
+        <button id="btn-generate" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">
+          + Generate Token Acak
+        </button>
+        <span id="generate-status" class="text-sm font-medium text-slate-600"></span>
+      </div>
+    </div>
+
+    <!-- DAFTAR KUPON TOKEN SIAP CETAK -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm">
+      <h2 class="text-lg font-bold text-slate-800 mb-4 no-print">Daftar Token Belum Terpakai (Siap Cetak & Potong)</h2>
+      <div id="token-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import { collection, doc, writeBatch, onSnapshot, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const daftarPaslon = [
+      {
+        id: "paslon_1",
+        nomor: "01",
+        nama: "Deannova Ajeng Pramesty (8B) & Keandra Adelio Hermawan (8C)",
+        warna: "bg-blue-600"
+      },
+      {
+        id: "paslon_2",
+        nomor: "02",
+        nama: "Danesha Zhafira Aditama (8G) & Erica Tyari Putri (8F)",
+        warna: "bg-emerald-600"
+      },
+      {
+        id: "paslon_3",
+        nomor: "03",
+        nama: "Satria Feragus Aryanto (8F) & Agustina Ramadani (8E)",
+        warna: "bg-purple-600"
+      }
+    ];
+
+    const btnToggle = document.getElementById("btn-toggle-hasil");
+    const panelHasil = document.getElementById("panel-hasil");
+    btnToggle.addEventListener("click", () => {
+      panelHasil.classList.toggle("hidden");
+      btnToggle.textContent = panelHasil.classList.contains("hidden") 
+        ? "👁️ Tampilkan Grafik Suara" 
+        : "👁️ Sembunyikan Grafik Suara";
+    });
+
+    // Generator 7 Digit Angka Acak Kriptografis (Bisa diawali 0 atau 00, tanpa pola tebakan)
+    function buatKodeAcak(panjang = 7) {
+      const array = new Uint32Array(panjang);
+      window.crypto.getRandomValues(array);
+      let hasil = "";
+      for (let i = 0; i < panjang; i++) {
+        hasil += (array[i] % 10).toString();
+      }
+      return hasil;
+    }
+
+    // Generate Token (Cek juga agar tidak bentrok dengan token yang sudah ada di database)
+    document.getElementById("btn-generate").addEventListener("click", async () => {
+      const jumlah = parseInt(document.getElementById("jumlah-token").value);
+      if (!jumlah || jumlah < 1 || jumlah > 500) {
+        alert("Masukkan jumlah antara 1 sampai 500 per sekali generate.");
+        return;
+      }
+
+      const btn = document.getElementById("btn-generate");
+      const statusEl = document.getElementById("generate-status");
+      btn.disabled = true;
+      statusEl.className = "text-sm font-medium text-blue-600";
+      statusEl.textContent = "Sedang membuat token ke Firestore...";
+
+      try {
+        const existingSnap = await getDocs(collection(db, "tokens"));
+        const existingIds = new Set(existingSnap.docs.map(d => d.id));
+
+        const batch = writeBatch(db);
+        const kodeSet = new Set();
+        while (kodeSet.size < jumlah) {
+          const kandidat = buatKodeAcak(7);
+          if (!existingIds.has(kandidat)) {
+            kodeSet.add(kandidat);
+          }
+        }
+
+        kodeSet.forEach(kode => {
+          const ref = doc(db, "tokens", kode);
+          batch.set(ref, {
+            status: "unused",
+            createdAt: serverTimestamp()
+          });
+        });
+
+        await batch.commit();
+        statusEl.className = "text-sm font-medium text-green-600";
+        statusEl.textContent = `Berhasil membuat ${jumlah} token baru!`;
+      } catch (err) {
+        console.error(err);
+        statusEl.className = "text-sm font-medium text-red-600";
+        statusEl.textContent = "Gagal: " + err.message;
+        alert("Gagal generate token! Cek Firestore Database & Rules.\nDetail: " + err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // Helper Hapus Semua Dokumen dalam Koleksi (Batch per 450 dokumen)
+    async function hapusKoleksi(namaKoleksi) {
+      const snap = await getDocs(collection(db, namaKoleksi));
+      if (snap.empty) {
+        alert(`Data di "${namaKoleksi}" sudah kosong.`);
+        return;
+      }
+
+      const docs = snap.docs;
+      for (let i = 0; i < docs.length; i += 450) {
+        const batch = writeBatch(db);
+        docs.slice(i, i + 450).forEach(d => batch.delete(d.ref));
+        await batch.commit();
+      }
+      alert(`Berhasil menghapus seluruh data di "${namaKoleksi}"!`);
+    }
+
+    // Hapus Semua Token
+    document.getElementById("btn-hapus-token").addEventListener("click", async () => {
+      const yakin = confirm("Yakin ingin menghapus SEMUA token yang sudah di-generate? Tindakan ini tidak bisa dibatalkan.");
+      if (!yakin) return;
+
+      const btn = document.getElementById("btn-hapus-token");
+      btn.disabled = true;
+      btn.textContent = "Menghapus...";
+      try {
+        await hapusKoleksi("tokens");
+        document.getElementById("generate-status").textContent = "";
+      } catch (err) {
+        alert("Gagal menghapus token: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "🗑️ Hapus Semua Token";
+      }
+    });
+
+    // Hapus Semua Suara Masuk
+    document.getElementById("btn-hapus-suara").addEventListener("click", async () => {
+      const yakin = confirm("Yakin ingin menghapus SEMUA suara yang sudah masuk? Grafik perolehan suara akan kembali menjadi 0.");
+      if (!yakin) return;
+
+      const btn = document.getElementById("btn-hapus-suara");
+      btn.disabled = true;
+      btn.textContent = "Menghapus...";
+      try {
+        await hapusKoleksi("votes");
+      } catch (err) {
+        alert("Gagal menghapus suara: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "🗑️ Hapus Semua Suara Masuk";
+      }
+    });
+
+    // Pantau Real-Time Data Token
+    onSnapshot(collection(db, "tokens"), (snapshot) => {
+      let total = 0, used = 0, unused = 0;
+      const grid = document.getElementById("token-grid");
+      grid.innerHTML = "";
+
+      snapshot.forEach(docSnap => {
+        total++;
+        const data = docSnap.data();
+        if (data.status === "used") {
+          used++;
+        } else {
+          unused++;
+          const box = document.createElement("div");
+          box.className = "border border-dashed border-slate-400 p-3 rounded-lg text-center";
+          box.innerHTML = `
+            <div class="text-[10px] text-slate-500 uppercase">Token Pilketos</div>
+            <div class="font-mono font-bold text-lg tracking-wider text-slate-800 my-1">${docSnap.id}</div>
+            <div class="text-[9px] text-slate-400">1x Pakai</div>
+          `;
+          grid.appendChild(box);
+        }
+      });
+
+      document.getElementById("stat-total").textContent = total;
+      document.getElementById("stat-used").textContent = used;
+      document.getElementById("stat-unused").textContent = unused;
+    }, (err) => {
+      console.error("Error onSnapshot tokens:", err);
+    });
+
+    // Pantau Real-Time Perolehan Suara
+    onSnapshot(collection(db, "votes"), (snapshot) => {
+      const hitung = { paslon_1: 0, paslon_2: 0, paslon_3: 0 };
+      let totalSuara = 0;
+
+      snapshot.forEach(docSnap => {
+        const pid = docSnap.data().paslonId;
+        if (hitung[pid] !== undefined) {
+          hitung[pid]++;
+          totalSuara++;
+        }
+      });
+
+      const container = document.getElementById("hasil-container");
+      container.innerHTML = "";
+
+      daftarPaslon.forEach(p => {
+        const suara = hitung[p.id];
+        const persen = totalSuara === 0 ? 0 : ((suara / totalSuara) * 100).toFixed(1);
+
+        container.innerHTML += `
+          <div>
+            <div class="flex justify-between text-sm font-semibold mb-1">
+              <span>Paslon ${p.nomor} — ${p.nama}</span>
+              <span>${suara} Suara (${persen}%)</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-5 overflow-hidden">
+              <div class="${p.warna} h-5 rounded-full transition-all duration-500" style="width: ${persen}%"></div>
+            </div>
+          </div>
+        `;
+      });
+    }, (err) => {
+      console.error("Error onSnapshot votes:", err);
+    });
+  </script>
+</body>
+</html>
