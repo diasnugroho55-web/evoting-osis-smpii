@@ -28,11 +28,11 @@
         padding: 0 !important;
         background: transparent !important;
       }
-      /* 4 kolom mendatar x 9 baris menurun = 36 kupon per halaman */
+      /* 4 kolom menyamping x 8 baris ke bawah = 32 kupon per halaman */
       .print-page {
         display: grid !important;
         grid-template-columns: repeat(4, 1fr) !important;
-        grid-template-rows: repeat(9, 28mm) !important;
+        grid-template-rows: repeat(8, 31mm) !important;
         gap: 3mm !important;
         page-break-after: always !important;
         break-after: page !important;
@@ -303,7 +303,7 @@
       const gridContainer = document.getElementById("token-grid");
       gridContainer.innerHTML = "";
 
-      const perHalaman = 36; // 4 mendatar x 9 menurun
+      const perHalaman = 32; // 4 mendatar x 8 menurun
       for (let i = 0; i < unusedTokens.length; i += perHalaman) {
         const kelompok = unusedTokens.slice(i, i + perHalaman);
         const pageDiv = document.createElement("div");
