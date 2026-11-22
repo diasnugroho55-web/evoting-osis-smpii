@@ -3,18 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - E-Voting OSIS SMP Institut Indonesia</title>
+  <title>Admin Dashboard - Pemilos OSIS 2027-2028 SMP Institut Indonesia</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @media print {
-      .no-print { display: none !important; }
-      body { background: white !important; }
+      @page {
+        size: A4 portrait;
+        margin: 10mm;
+      }
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .print-container {
+        max-width: 100% !important;
+        margin: 0 !important;
+      }
+      .print-card-wrapper {
+        box-shadow: none !important;
+        padding: 0 !important;
+        background: transparent !important;
+      }
+      /* 4 kolom mendatar x 9 baris menurun = 36 kupon per halaman */
+      .print-page {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        grid-template-rows: repeat(9, 28mm) !important;
+        gap: 3mm !important;
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+      .print-page:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
+      }
+      .kupon-item {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        height: 100% !important;
+      }
     }
   </style>
 </head>
 <body class="bg-slate-100 min-h-screen p-6 font-sans">
 
-  <div class="max-w-6xl mx-auto space-y-6">
+  <div class="max-w-6xl mx-auto space-y-6 print-container">
     <!-- HEADER -->
     <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-wrap justify-between items-center gap-4 no-print">
       <div class="flex items-center gap-3">
@@ -25,8 +66,8 @@
           class="w-12 h-12 object-contain"
         >
         <div>
-          <h1 class="text-xl md:text-2xl font-bold text-slate-800">Dashboard Admin E-Voting OSIS</h1>
-          <p class="text-slate-500 text-sm">SMP Institut Indonesia — Pemantauan Suara & Manajemen Token</p>
+          <h1 class="text-xl md:text-2xl font-bold text-slate-800">Dashboard Admin Pemilos OSIS 2027-2028</h1>
+          <p class="text-slate-500 text-sm">SMP Institut Indonesia — Pemantauan Suara & Manajemen Token (Periode 2027-2028)</p>
         </div>
       </div>
       <div class="flex flex-wrap gap-2">
@@ -58,7 +99,7 @@
     <!-- GRAFIK PEROLEHAN SUARA & PERSENTASE -->
     <div id="panel-hasil" class="bg-white p-6 rounded-2xl shadow-sm no-print">
       <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
-        <h2 class="text-lg font-bold text-slate-800">Perolehan Suara Sementara (Real-Time)</h2>
+        <h2 class="text-lg font-bold text-slate-800">Perolehan Suara Sementara OSIS 2027-2028 (Real-Time)</h2>
         <button id="btn-hapus-suara" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-semibold text-xs cursor-pointer">
           🗑️ Hapus Semua Suara Masuk
         </button>
@@ -78,7 +119,7 @@
         </button>
       </div>
       <div class="flex flex-wrap gap-3 items-center">
-        <input type="number" id="jumlah-token" value="50" min="1" max="500" class="border border-slate-300 rounded-xl px-4 py-2 w-36 font-semibold">
+        <input type="number" id="jumlah-token" value="36" min="1" max="500" class="border border-slate-300 rounded-xl px-4 py-2 w-36 font-semibold">
         <button id="btn-generate" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">
           + Generate Token Acak
         </button>
@@ -86,10 +127,13 @@
       </div>
     </div>
 
-    <!-- DAFTAR KUPON TOKEN SIAP CETAK -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm">
-      <h2 class="text-lg font-bold text-slate-800 mb-4 no-print">Daftar Token Belum Terpakai (Siap Cetak & Potong)</h2>
-      <div id="token-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3"></div>
+    <!-- DAFTAR KUPON TOKEN SIAP CETAK (4 MENDATAR x 9 MENURUN = 36 PER HALAMAN) -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm print-card-wrapper">
+      <div class="flex flex-wrap justify-between items-center gap-2 mb-4 no-print">
+        <h2 class="text-lg font-bold text-slate-800">Daftar Token Belum Terpakai (Siap Cetak & Potong)</h2>
+        <span class="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full">Format Cetak: 4 kolom × 9 baris (36 kupon / halaman)</span>
+      </div>
+      <div id="token-grid" class="space-y-6"></div>
     </div>
   </div>
 
@@ -127,7 +171,7 @@
         : "👁️ Sembunyikan Grafik Suara";
     });
 
-    // Generator 7 Digit Angka Acak Kriptografis (Bisa diawali 0 atau 00, tanpa pola tebakan)
+    // Generator 7 Digit Angka Acak Kriptografis (Bisa diawali 0 atau 00)
     function buatKodeAcak(panjang = 7) {
       const array = new Uint32Array(panjang);
       window.crypto.getRandomValues(array);
@@ -138,7 +182,7 @@
       return hasil;
     }
 
-    // Generate Token (Cek juga agar tidak bentrok dengan token yang sudah ada di database)
+    // Generate Token
     document.getElementById("btn-generate").addEventListener("click", async () => {
       const jumlah = parseInt(document.getElementById("jumlah-token").value);
       if (!jumlah || jumlah < 1 || jumlah > 500) {
@@ -186,7 +230,7 @@
       }
     });
 
-    // Helper Hapus Semua Dokumen dalam Koleksi (Batch per 450 dokumen)
+    // Helper Hapus Semua Dokumen dalam Koleksi
     async function hapusKoleksi(namaKoleksi) {
       const snap = await getDocs(collection(db, namaKoleksi));
       if (snap.empty) {
@@ -240,11 +284,10 @@
       }
     });
 
-    // Pantau Real-Time Data Token
+    // Pantau Real-Time Data Token & Kelompokkan per 36 Kupon (4x9) untuk Cetak Anti-Terpotong
     onSnapshot(collection(db, "tokens"), (snapshot) => {
       let total = 0, used = 0, unused = 0;
-      const grid = document.getElementById("token-grid");
-      grid.innerHTML = "";
+      const unusedTokens = [];
 
       snapshot.forEach(docSnap => {
         total++;
@@ -253,16 +296,32 @@
           used++;
         } else {
           unused++;
-          const box = document.createElement("div");
-          box.className = "border border-dashed border-slate-400 p-3 rounded-lg text-center";
-          box.innerHTML = `
-            <div class="text-[10px] text-slate-500 uppercase">Token Pilketos</div>
-            <div class="font-mono font-bold text-lg tracking-wider text-slate-800 my-1">${docSnap.id}</div>
-            <div class="text-[9px] text-slate-400">1x Pakai</div>
-          `;
-          grid.appendChild(box);
+          unusedTokens.push(docSnap.id);
         }
       });
+
+      const gridContainer = document.getElementById("token-grid");
+      gridContainer.innerHTML = "";
+
+      const perHalaman = 36; // 4 mendatar x 9 menurun
+      for (let i = 0; i < unusedTokens.length; i += perHalaman) {
+        const kelompok = unusedTokens.slice(i, i + perHalaman);
+        const pageDiv = document.createElement("div");
+        pageDiv.className = "print-page grid grid-cols-2 sm:grid-cols-4 gap-3";
+
+        kelompok.forEach(kode => {
+          const box = document.createElement("div");
+          box.className = "kupon-item border border-dashed border-slate-400 p-3 rounded-lg text-center";
+          box.innerHTML = `
+            <div class="text-[10px] font-semibold text-slate-600 uppercase">Token Pemilos 2027-2028</div>
+            <div class="font-mono font-bold text-lg tracking-wider text-slate-800 my-1">${kode}</div>
+            <div class="text-[9px] text-slate-400">OSIS SMP Institut Indonesia • 1x Pakai</div>
+          `;
+          pageDiv.appendChild(box);
+        });
+
+        gridContainer.appendChild(pageDiv);
+      }
 
       document.getElementById("stat-total").textContent = total;
       document.getElementById("stat-used").textContent = used;

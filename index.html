@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>E-Voting Calon Ketua dan Wakil Ketua OSIS SMP Institut Indonesia</title>
+  <title>E-Voting Calon Ketua dan Wakil Ketua OSIS Periode 2027-2028 — SMP Institut Indonesia</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 min-h-screen flex items-center justify-center p-4 font-sans select-none">
@@ -16,11 +16,14 @@
       onerror="this.style.display='none'" 
       class="w-20 h-20 object-contain mx-auto mb-4"
     >
-    <h1 class="text-xl md:text-2xl font-bold text-slate-800 leading-snug mb-2">
+    <h1 class="text-xl md:text-2xl font-bold text-slate-800 leading-snug mb-1">
       E-Voting Calon Ketua dan Wakil Ketua OSIS<br>
       <span class="text-blue-700">SMP Institut Indonesia</span>
     </h1>
-    <p class="text-slate-500 text-sm mb-6">Masukkan 7 digit kode token dari panitia untuk membuka surat suara.</p>
+    <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 bg-blue-50 inline-block px-3 py-1 rounded-full mb-4">
+      Periode 2027-2028
+    </p>
+    <p class="text-slate-500 text-sm mb-6">Masukkan 7 digit kode token Pemilos dari panitia untuk membuka surat suara.</p>
     
     <form id="form-token" class="space-y-4">
       <input 
@@ -54,9 +57,12 @@
           onerror="this.style.display='none'" 
           class="w-11 h-11 object-contain"
         >
-        <h1 class="text-2xl md:text-3xl font-bold text-slate-800">
-          E-Voting Calon Ketua dan Wakil Ketua OSIS SMP Institut Indonesia
-        </h1>
+        <div class="text-left md:text-center">
+          <h1 class="text-xl md:text-3xl font-bold text-slate-800">
+            E-Voting Calon Ketua dan Wakil Ketua OSIS SMP Institut Indonesia
+          </h1>
+          <p class="text-sm font-semibold text-blue-700">Masa Bakti Periode 2027-2028</p>
+        </div>
       </div>
       <p class="text-slate-600">Klik tombol <strong>PILIH</strong> pada salah satu pasangan calon di bawah ini</p>
     </div>
@@ -99,8 +105,8 @@
       ✓
     </div>
     <h1 class="text-2xl font-bold text-slate-800 mb-2">Terima Kasih Telah Berpartisipasi!</h1>
-    <p class="text-slate-600 mb-6">Suara Anda telah berhasil direkam secara rahasia.</p>
-    <p class="text-xs text-slate-400">Layar akan kembali ke halaman awal dalam <span id="countdown-text" class="font-bold text-slate-600">3</span> detik...</p>
+    <p class="text-slate-600 mb-2">Suara Anda untuk Pemilihan OSIS Periode 2027-2028 telah berhasil direkam secara rahasia.</p>
+    <p class="text-xs text-slate-400 mt-4">Layar akan kembali ke halaman awal dalam <span id="countdown-text" class="font-bold text-slate-600">3</span> detik...</p>
   </div>
 
   <script type="module">
