@@ -53,93 +53,193 @@
     }
   </style>
 </head>
-<body class="bg-slate-100 min-h-screen p-6 font-sans">
+<body class="bg-slate-100 min-h-screen font-sans">
 
-  <div class="max-w-6xl mx-auto space-y-6 print-container">
-    <!-- HEADER -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-wrap justify-between items-center gap-4 no-print">
-      <div class="flex items-center gap-3">
+  <!-- HALAMAN LOGIN ADMIN -->
+  <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 no-print">
+    <div class="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full">
+      <div class="text-center mb-6">
         <img 
           src="logo.png" 
           alt="Logo SMP Institut Indonesia" 
           onerror="this.style.display='none'" 
-          class="w-12 h-12 object-contain"
+          class="w-16 h-16 object-contain mx-auto mb-3"
         >
+        <h1 class="text-xl font-bold text-slate-800">Login Panitia Pemilos</h1>
+        <p class="text-slate-500 text-sm">OSIS SMP Institut Indonesia Periode 2027-2028</p>
+      </div>
+
+      <form id="form-login" class="space-y-4">
         <div>
-          <h1 class="text-xl md:text-2xl font-bold text-slate-800">Dashboard Admin Pemilos OSIS 2027-2028</h1>
-          <p class="text-slate-500 text-sm">SMP Institut Indonesia — Pemantauan Suara & Manajemen Token (Periode 2027-2028)</p>
+          <label for="login-username" class="block text-sm font-semibold text-slate-700 mb-1">Username</label>
+          <input 
+            type="text" 
+            id="login-username" 
+            placeholder="Masukkan username" 
+            required 
+            autocomplete="username"
+            class="w-full border border-slate-300 rounded-xl px-4 py-2.5 focus:outline-none focus:border-blue-600"
+          >
+        </div>
+        <div>
+          <label for="login-password" class="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+          <input 
+            type="password" 
+            id="login-password" 
+            placeholder="Masukkan password" 
+            required 
+            autocomplete="current-password"
+            class="w-full border border-slate-300 rounded-xl px-4 py-2.5 focus:outline-none focus:border-blue-600"
+          >
+        </div>
+        <p id="login-error" class="text-red-600 text-sm font-medium hidden">Username atau password salah!</p>
+        <button 
+          type="submit" 
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition cursor-pointer">
+          Masuk Dashboard Admin
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- DASHBOARD ADMIN (TERSEMBUNYI SEBELUM LOGIN) -->
+  <div id="admin-dashboard" class="hidden p-6">
+    <div class="max-w-6xl mx-auto space-y-6 print-container">
+      <!-- HEADER -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-wrap justify-between items-center gap-4 no-print">
+        <div class="flex items-center gap-3">
+          <img 
+            src="logo.png" 
+            alt="Logo SMP Institut Indonesia" 
+            onerror="this.style.display='none'" 
+            class="w-12 h-12 object-contain"
+          >
+          <div>
+            <h1 class="text-xl md:text-2xl font-bold text-slate-800">Dashboard Admin Pemilos OSIS 2027-2028</h1>
+            <p class="text-slate-500 text-sm">SMP Institut Indonesia — Pemantauan Suara & Manajemen Token (Periode 2027-2028)</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button id="btn-toggle-hasil" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl font-semibold text-sm cursor-pointer">
+            👁️ Sembunyikan Grafik Suara
+          </button>
+          <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl font-semibold text-sm cursor-pointer">
+            🖨️ Cetak Kupon Token
+          </button>
+          <button id="btn-logout" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2 rounded-xl font-semibold text-sm cursor-pointer">
+            🔒 Keluar
+          </button>
         </div>
       </div>
-      <div class="flex flex-wrap gap-2">
-        <button id="btn-toggle-hasil" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl font-semibold text-sm cursor-pointer">
-          👁️ Sembunyikan Grafik Suara
-        </button>
-        <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl font-semibold text-sm cursor-pointer">
-          🖨️ Cetak Kupon Token
-        </button>
-      </div>
-    </div>
 
-    <!-- STATISTIK PARTISIPASI -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
-      <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-blue-600">
-        <p class="text-sm text-slate-500">Total Token Dibuat</p>
-        <p id="stat-total" class="text-3xl font-bold text-slate-800 mt-1">0</p>
-      </div>
-      <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-green-600">
-        <p class="text-sm text-slate-500">Sudah Memilih (Suara Masuk)</p>
-        <p id="stat-used" class="text-3xl font-bold text-green-600 mt-1">0</p>
-      </div>
-      <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-amber-500">
-        <p class="text-sm text-slate-500">Belum Memilih (Sisa Token)</p>
-        <p id="stat-unused" class="text-3xl font-bold text-amber-600 mt-1">0</p>
-      </div>
-    </div>
-
-    <!-- GRAFIK PEROLEHAN SUARA & PERSENTASE -->
-    <div id="panel-hasil" class="bg-white p-6 rounded-2xl shadow-sm no-print">
-      <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
-        <h2 class="text-lg font-bold text-slate-800">Perolehan Suara Sementara OSIS 2027-2028 (Real-Time)</h2>
-        <button id="btn-hapus-suara" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-semibold text-xs cursor-pointer">
-          🗑️ Hapus Semua Suara Masuk
-        </button>
-      </div>
-      <div class="space-y-4" id="hasil-container"></div>
-    </div>
-
-    <!-- GENERATOR & HAPUS TOKEN -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm no-print">
-      <div class="flex flex-wrap justify-between items-start gap-3 mb-4">
-        <div>
-          <h2 class="text-lg font-bold text-slate-800">Manajemen Kode Token Pemilih</h2>
-          <p class="text-sm text-slate-500">Buat kode acak kriptografis 7 digit angka sekali pakai atau hapus seluruh token.</p>
+      <!-- STATISTIK PARTISIPASI -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-blue-600">
+          <p class="text-sm text-slate-500">Total Token Dibuat</p>
+          <p id="stat-total" class="text-3xl font-bold text-slate-800 mt-1">0</p>
         </div>
-        <button id="btn-hapus-token" class="bg-red-100 hover:bg-red-200 text-red-700 border border-red-300 px-4 py-2 rounded-xl font-semibold text-xs cursor-pointer">
-          🗑️ Hapus Semua Token
-        </button>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-green-600">
+          <p class="text-sm text-slate-500">Sudah Memilih (Suara Masuk)</p>
+          <p id="stat-used" class="text-3xl font-bold text-green-600 mt-1">0</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-amber-500">
+          <p class="text-sm text-slate-500">Belum Memilih (Sisa Token)</p>
+          <p id="stat-unused" class="text-3xl font-bold text-amber-600 mt-1">0</p>
+        </div>
       </div>
-      <div class="flex flex-wrap gap-3 items-center">
-        <input type="number" id="jumlah-token" value="36" min="1" max="500" class="border border-slate-300 rounded-xl px-4 py-2 w-36 font-semibold">
-        <button id="btn-generate" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">
-          + Generate Token Acak
-        </button>
-        <span id="generate-status" class="text-sm font-medium text-slate-600"></span>
-      </div>
-    </div>
 
-    <!-- DAFTAR KUPON TOKEN SIAP CETAK (4 MENDATAR x 9 MENURUN = 36 PER HALAMAN) -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm print-card-wrapper">
-      <div class="flex flex-wrap justify-between items-center gap-2 mb-4 no-print">
-        <h2 class="text-lg font-bold text-slate-800">Daftar Token Belum Terpakai (Siap Cetak & Potong)</h2>
-        <span class="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full">Format Cetak: 4 kolom × 9 baris (36 kupon / halaman)</span>
+      <!-- GRAFIK PEROLEHAN SUARA & PERSENTASE -->
+      <div id="panel-hasil" class="bg-white p-6 rounded-2xl shadow-sm no-print">
+        <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+          <h2 class="text-lg font-bold text-slate-800">Perolehan Suara Sementara OSIS 2027-2028 (Real-Time)</h2>
+          <button id="btn-hapus-suara" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-semibold text-xs cursor-pointer">
+            🗑️ Hapus Semua Suara Masuk
+          </button>
+        </div>
+        <div class="space-y-4" id="hasil-container"></div>
       </div>
-      <div id="token-grid" class="space-y-6"></div>
+
+      <!-- GENERATOR & HAPUS TOKEN -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm no-print">
+        <div class="flex flex-wrap justify-between items-start gap-3 mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Manajemen Kode Token Pemilih</h2>
+            <p class="text-sm text-slate-500">Buat kode acak kriptografis 7 digit angka sekali pakai atau hapus seluruh token.</p>
+          </div>
+          <button id="btn-hapus-token" class="bg-red-100 hover:bg-red-200 text-red-700 border border-red-300 px-4 py-2 rounded-xl font-semibold text-xs cursor-pointer">
+            🗑️ Hapus Semua Token
+          </button>
+        </div>
+        <div class="flex flex-wrap gap-3 items-center">
+          <input type="number" id="jumlah-token" value="32" min="1" max="500" class="border border-slate-300 rounded-xl px-4 py-2 w-36 font-semibold">
+          <button id="btn-generate" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">
+            + Generate Token Acak
+          </button>
+          <span id="generate-status" class="text-sm font-medium text-slate-600"></span>
+        </div>
+      </div>
+
+      <!-- DAFTAR KUPON TOKEN SIAP CETAK (4 MENYAMPING x 8 KE BAWAH = 32 PER HALAMAN) -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm print-card-wrapper">
+        <div class="flex flex-wrap justify-between items-center gap-2 mb-4 no-print">
+          <h2 class="text-lg font-bold text-slate-800">Daftar Token Belum Terpakai (Siap Cetak & Potong)</h2>
+          <span class="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full">Format Cetak: 4 kolom × 8 baris (32 kupon / halaman)</span>
+        </div>
+        <div id="token-grid" class="space-y-6"></div>
+      </div>
     </div>
   </div>
 
   <script type="module">
     import { db } from "./firebase-config.js";
     import { collection, doc, writeBatch, onSnapshot, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // Kredensial Login Admin
+    const ADMIN_USER = "adminspindo";
+    const ADMIN_PASS = "admin1948";
+    const SESSION_KEY = "pemilos_admin_logged_in";
+
+    const loginScreen = document.getElementById("login-screen");
+    const adminDashboard = document.getElementById("admin-dashboard");
+    const formLogin = document.getElementById("form-login");
+    const loginError = document.getElementById("login-error");
+    let listenersStarted = false;
+
+    function tampilkanDashboard() {
+      loginScreen.classList.add("hidden");
+      adminDashboard.classList.remove("hidden");
+      if (!listenersStarted) {
+        listenersStarted = true;
+        mulaiPantauFirestore();
+      }
+    }
+
+    // Cek sesi login saat halaman dibuka
+    if (sessionStorage.getItem(SESSION_KEY) === "true") {
+      tampilkanDashboard();
+    }
+
+    formLogin.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const user = document.getElementById("login-username").value.trim();
+      const pass = document.getElementById("login-password").value;
+
+      if (user === ADMIN_USER && pass === ADMIN_PASS) {
+        loginError.classList.add("hidden");
+        sessionStorage.setItem(SESSION_KEY, "true");
+        tampilkanDashboard();
+      } else {
+        loginError.classList.remove("hidden");
+      }
+    });
+
+    document.getElementById("btn-logout").addEventListener("click", () => {
+      sessionStorage.removeItem(SESSION_KEY);
+      document.getElementById("login-username").value = "";
+      document.getElementById("login-password").value = "";
+      adminDashboard.classList.add("hidden");
+      loginScreen.classList.remove("hidden");
+    });
 
     const daftarPaslon = [
       {
@@ -284,87 +384,89 @@
       }
     });
 
-    // Pantau Real-Time Data Token & Kelompokkan per 36 Kupon (4x9) untuk Cetak Anti-Terpotong
-    onSnapshot(collection(db, "tokens"), (snapshot) => {
-      let total = 0, used = 0, unused = 0;
-      const unusedTokens = [];
+    function mulaiPantauFirestore() {
+      // Pantau Real-Time Data Token & Kelompokkan per 32 Kupon (4x8) untuk Cetak Anti-Terpotong
+      onSnapshot(collection(db, "tokens"), (snapshot) => {
+        let total = 0, used = 0, unused = 0;
+        const unusedTokens = [];
 
-      snapshot.forEach(docSnap => {
-        total++;
-        const data = docSnap.data();
-        if (data.status === "used") {
-          used++;
-        } else {
-          unused++;
-          unusedTokens.push(docSnap.id);
-        }
-      });
-
-      const gridContainer = document.getElementById("token-grid");
-      gridContainer.innerHTML = "";
-
-      const perHalaman = 32; // 4 mendatar x 8 menurun
-      for (let i = 0; i < unusedTokens.length; i += perHalaman) {
-        const kelompok = unusedTokens.slice(i, i + perHalaman);
-        const pageDiv = document.createElement("div");
-        pageDiv.className = "print-page grid grid-cols-2 sm:grid-cols-4 gap-3";
-
-        kelompok.forEach(kode => {
-          const box = document.createElement("div");
-          box.className = "kupon-item border border-dashed border-slate-400 p-3 rounded-lg text-center";
-          box.innerHTML = `
-            <div class="text-[10px] font-semibold text-slate-600 uppercase">Token Pemilos 2027-2028</div>
-            <div class="font-mono font-bold text-lg tracking-wider text-slate-800 my-1">${kode}</div>
-            <div class="text-[9px] text-slate-400">OSIS SMP Institut Indonesia • 1x Pakai</div>
-          `;
-          pageDiv.appendChild(box);
+        snapshot.forEach(docSnap => {
+          total++;
+          const data = docSnap.data();
+          if (data.status === "used") {
+            used++;
+          } else {
+            unused++;
+            unusedTokens.push(docSnap.id);
+          }
         });
 
-        gridContainer.appendChild(pageDiv);
-      }
+        const gridContainer = document.getElementById("token-grid");
+        gridContainer.innerHTML = "";
 
-      document.getElementById("stat-total").textContent = total;
-      document.getElementById("stat-used").textContent = used;
-      document.getElementById("stat-unused").textContent = unused;
-    }, (err) => {
-      console.error("Error onSnapshot tokens:", err);
-    });
+        const perHalaman = 32; // 4 menyamping x 8 ke bawah
+        for (let i = 0; i < unusedTokens.length; i += perHalaman) {
+          const kelompok = unusedTokens.slice(i, i + perHalaman);
+          const pageDiv = document.createElement("div");
+          pageDiv.className = "print-page grid grid-cols-2 sm:grid-cols-4 gap-3";
 
-    // Pantau Real-Time Perolehan Suara
-    onSnapshot(collection(db, "votes"), (snapshot) => {
-      const hitung = { paslon_1: 0, paslon_2: 0, paslon_3: 0 };
-      let totalSuara = 0;
+          kelompok.forEach(kode => {
+            const box = document.createElement("div");
+            box.className = "kupon-item border border-dashed border-slate-400 p-3 rounded-lg text-center";
+            box.innerHTML = `
+              <div class="text-[10px] font-semibold text-slate-600 uppercase">Token Pemilos 2027-2028</div>
+              <div class="font-mono font-bold text-lg tracking-wider text-slate-800 my-1">${kode}</div>
+              <div class="text-[9px] text-slate-400">OSIS SMP Institut Indonesia • 1x Pakai</div>
+            `;
+            pageDiv.appendChild(box);
+          });
 
-      snapshot.forEach(docSnap => {
-        const pid = docSnap.data().paslonId;
-        if (hitung[pid] !== undefined) {
-          hitung[pid]++;
-          totalSuara++;
+          gridContainer.appendChild(pageDiv);
         }
+
+        document.getElementById("stat-total").textContent = total;
+        document.getElementById("stat-used").textContent = used;
+        document.getElementById("stat-unused").textContent = unused;
+      }, (err) => {
+        console.error("Error onSnapshot tokens:", err);
       });
 
-      const container = document.getElementById("hasil-container");
-      container.innerHTML = "";
+      // Pantau Real-Time Perolehan Suara
+      onSnapshot(collection(db, "votes"), (snapshot) => {
+        const hitung = { paslon_1: 0, paslon_2: 0, paslon_3: 0 };
+        let totalSuara = 0;
 
-      daftarPaslon.forEach(p => {
-        const suara = hitung[p.id];
-        const persen = totalSuara === 0 ? 0 : ((suara / totalSuara) * 100).toFixed(1);
+        snapshot.forEach(docSnap => {
+          const pid = docSnap.data().paslonId;
+          if (hitung[pid] !== undefined) {
+            hitung[pid]++;
+            totalSuara++;
+          }
+        });
 
-        container.innerHTML += `
-          <div>
-            <div class="flex justify-between text-sm font-semibold mb-1">
-              <span>Paslon ${p.nomor} — ${p.nama}</span>
-              <span>${suara} Suara (${persen}%)</span>
+        const container = document.getElementById("hasil-container");
+        container.innerHTML = "";
+
+        daftarPaslon.forEach(p => {
+          const suara = hitung[p.id];
+          const persen = totalSuara === 0 ? 0 : ((suara / totalSuara) * 100).toFixed(1);
+
+          container.innerHTML += `
+            <div>
+              <div class="flex justify-between text-sm font-semibold mb-1">
+                <span>Paslon ${p.nomor} — ${p.nama}</span>
+                <span>${suara} Suara (${persen}%)</span>
+              </div>
+              <div class="w-full bg-slate-200 rounded-full h-5 overflow-hidden">
+                <div class="${p.warna} h-5 rounded-full transition-all duration-500" style="width: ${persen}%"></div>
+              </div>
             </div>
-            <div class="w-full bg-slate-200 rounded-full h-5 overflow-hidden">
-              <div class="${p.warna} h-5 rounded-full transition-all duration-500" style="width: ${persen}%"></div>
-            </div>
-          </div>
-        `;
+          `;
+        });
+      }, (err) => {
+        console.error("Error onSnapshot votes:", err);
       });
-    }, (err) => {
-      console.error("Error onSnapshot votes:", err);
-    });
+    }
   </script>
 </body>
 </html>
